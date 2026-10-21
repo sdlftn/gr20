@@ -39,6 +39,77 @@ function hasWebGL() {
   } catch { return false; }
 }
 
+function renderContent(stages, days, summary) {
+  // 16 étapes
+  const liste = $("etapes-liste");
+  const dayOf = (n) => days.find((d) => d.stages.includes(n));
+  liste.innerHTML = stages.map((s) => {
+    const d = dayOf(s.n);
+    return `<article class="etape" id="etape-${s.n}" data-cam="stage:${s.n}" aria-labelledby="t-e${s.n}">
+      <div class="etape-carte">
+        <div class="etape-n"><b class="num">${s.n}</b><span>étape sur 16 · mon jour ${d.day}</span></div>
+        <h3 id="t-e${s.n}">${s.from_name} → ${s.to_name}</h3>
+        <ul class="mesures-etape">
+          <li>${fmt(s.km, 1)} <span>km</span></li>
+          <li>+${fmt(s.up)} <span>m</span></li>
+          <li>−${fmt(s.down)} <span>m</span></li>
+          <li><span>jusqu'à</span> ${fmt(s.max_alt)} <span>m</span></li>
+        </ul>
+        <p>${s.text}</p>
+        ${d.doubled ? `<span class="badge">Enchaînée avec l'étape ${d.stages.find((x) => x !== s.n)} le même jour</span>` : ""}
+      </div>
+    </article>`;
+  }).join("");
+
+  // 12 jours
+  $("jours").innerHTML = days.map((d) => `<li class="${d.doubled ? "double" : ""}">
+      <span class="j num">J${d.day}</span>
+      <span class="trajet">${d.from_name} → ${d.to_name}<small>${d.doubled ? `étapes ${d.stages.join(" + ")} · doublé` : `étape ${d.stages[0]}`}</small></span>
+      <span class="chiffre"><b>${fmt(d.km, 1)}</b> km<br>+<b>${fmt(d.up)}</b> m</span>
+    </li>`).join("");
+
+  // nuits
+  $("nuits").innerHTML = days.map((d) => `<li><span class="j">Jour ${d.day}</span>
+      <span class="lieu">${d.night ? `Refuge ${d.night}` : "Conca, arrivée"}${d.night && /Vizzavona|Ascu/.test(d.night) ? "<small>(plusieurs hébergements)</small>" : ""}</span></li>`).join("");
+  $("nuits").querySelectorAll(".lieu").forEach((el) => { el.innerHTML = el.innerHTML.replace("Refuge Vizzavona", "Vizzavona"); });
+
+  // comparaison tour Eiffel (330 m)
+  $("eiffel").textContent = fmt(Math.round(summary.up / 330));
+
+  // compte à rebours
+  const dep = summary.depart || {};
+  const cible = new Date((dep.date || dep.approx || "2027-07-25") + "T08:00:00");
+  const jours = Math.ceil((cible - new Date()) / 86400000);
+  const txt = $("compte-texte");
+  if (jours > 0) {
+    if (dep.date) txt.innerHTML = `Départ dans <b class="num">${fmt(jours)}</b> jours.`;
+    else {
+      const mois = Math.round(jours / 30.4);
+      txt.innerHTML = `Départ prévu ${dep.label || "fin juillet 2027"} : dans environ <b class="num">${fmt(mois)}</b> mois.`;
+    }
+  } else txt.textContent = "Le GR20, c'est fait.";
+
+  // chiffres qui s'incrémentent quand ils apparaissent
+  if (!REDUCED && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      io.unobserve(e.target);
+      const el = e.target, end = summary[el.dataset.count], dec = +(el.dataset.dec || 0);
+      const t0 = performance.now();
+      const step = (t) => {
+        const p = Math.min(1, (t - t0) / 1400);
+        el.textContent = fmt(end * (1 - Math.pow(1 - p, 3)), dec);
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }), { threshold: 0.6 });
+    document.querySelectorAll("[data-count]").forEach((el) => {
+      el.textContent = fmt(summary[el.dataset.count], +(el.dataset.dec || 0));
+      io.observe(el);
+    });
+  }
+}
+
 async function start() {
   const [terrain, track, stops, stages, days, summary] = await Promise.all(
     ["terrain.json", "track.json", "stops.json", "stages.json", "days.json", "summary.json"].map(getJSON));
@@ -47,6 +118,8 @@ async function start() {
     const k = el.dataset.k;
     el.textContent = k === "km" ? fmt(summary.km, 1) : fmt(summary[k]);
   });
+
+  renderContent(stages, days, summary);
 
   if (!hasWebGL()) {
     $("chargement").remove();
@@ -268,6 +341,28 @@ async function start() {
     look.y = here.y - 20;
   }
 
+  // cadrage d'un morceau de chemin (une étape, ou l'arrivée), vu du sud
+  const sb = new THREE.Box3(), sCen = new THREE.Vector3(), ss = new THREE.Vector3();
+  function frameKm(kmA, kmB, out, look, zoom = 1) {
+    sb.makeEmpty();
+    const ia = Math.floor(pointAt(kmA).i), ib = Math.ceil(pointAt(kmB).i);
+    for (let i = ia; i <= ib; i++) sb.expandByPoint(P[i]);
+    sb.getCenter(sCen); sb.getSize(ss);
+    const vf = THREE.MathUtils.degToRad(camera.fov) / 2;
+    const hf = Math.atan(Math.tan(vf) * camera.aspect);
+    const portrait = camera.aspect < 1;
+    const ext = Math.max(ss.x, ss.z, 300);
+    const d = Math.max(ext * 0.75 / Math.tan(hf), ext * 0.75 / Math.tan(vf)) * zoom * (portrait ? 1.15 : 1);
+    const tilt = THREE.MathUtils.degToRad(50);
+    out.set(sCen.x + (portrait ? 0 : d * 0.22), sCen.y + d * Math.sin(tilt), sCen.z + d * Math.cos(tilt));
+    look.copy(sCen);
+    // laisse de la place au texte : à gauche sur ordinateur, en bas sur téléphone
+    if (portrait) { look.z += d * 0.16; out.z += d * 0.16; }
+    else look.x -= d * 0.34 * camera.aspect * 0.5;
+    const g = groundWorld(out.x, out.z) + 120;
+    if (out.y < g) out.y = g;
+  }
+
   const camPos = new THREE.Vector3(), camLook = new THREE.Vector3();
   const wantPos = new THREE.Vector3(), wantLook = new THREE.Vector3();
   const oPos = new THREE.Vector3(), oLook = new THREE.Vector3();
@@ -291,10 +386,29 @@ async function start() {
   const kmFromProgress = (p) => clamp((p - INTRO) / (OUTRO - INTRO), 0, 1) * TOTAL;
   const progressFromKm = (km) => INTRO + (km / TOTAL) * (OUTRO - INTRO);
 
+  // après le survol, chaque section dit ce que la caméra montre (data-cam)
+  let camTargets = [], post = { kind: "overview", stage: 0 };
+  const navLinks = [...document.querySelectorAll(".sommaire a")];
+  const navSections = navLinks.map((a) => document.getElementById(a.dataset.for));
   function readScroll() {
     const r = survol.getBoundingClientRect();
     const len = r.height - innerHeight;
     progress = clamp(-r.top / len, 0, 1);
+    if (!camTargets.length) camTargets = [...document.querySelectorAll("[data-cam]")];
+    if (progress >= 1) {
+      const mid = innerHeight * 0.5;
+      let best = null, bestD = Infinity;
+      for (const el of camTargets) {
+        const b = el.getBoundingClientRect();
+        const d = b.top > mid ? b.top - mid : b.bottom < mid ? mid - b.bottom : 0;
+        if (d < bestD) { bestD = d; best = el; }
+      }
+      const [kind, num] = (best?.dataset.cam || "overview").split(":");
+      post = { kind, stage: +num || 0 };
+    }
+    let cur = 0;
+    navSections.forEach((sec, i) => { if (sec && sec.getBoundingClientRect().top < innerHeight * 0.5) cur = i; });
+    navLinks.forEach((a, i) => a.setAttribute("aria-current", String(i === cur)));
   }
   addEventListener("scroll", readScroll, { passive: true });
   readScroll();
@@ -420,13 +534,28 @@ async function start() {
     if (progress < INTRO) w = smoothstep(progress / INTRO);
     else if (progress > OUTRO) w = 1 - smoothstep((progress - OUTRO) / (1 - OUTRO));
     else w = 1;
-    wantPos.lerpVectors(oPos, dPos, w);
-    wantLook.lerpVectors(oLook, dLook, w);
-    // pendant les transitions, on monte au-dessus du relief pour ne jamais le traverser
-    const lift = Math.sin(Math.PI * w) * 0.25 * oPos.y * (w < 1 ? 1 : 0);
-    wantPos.y = Math.max(wantPos.y + lift * 0.2, groundWorld(wantPos.x, wantPos.z) + 55);
+    const after = progress >= 1;
+    let shownKm = progress > OUTRO ? TOTAL : km;
+    let focusStage = null;
+    if (after && post.kind === "stage") {
+      focusStage = stages[post.stage - 1];
+      frameKm(focusStage.start_km, focusStage.end_km, wantPos, wantLook);
+      shownKm = focusStage.end_km;
+    } else if (after && post.kind === "end") {
+      frameKm(stages[14].start_km, TOTAL, wantPos, wantLook, 1.5);
+    } else if (after) {
+      // vue d'ensemble décalée pour laisser la place au texte
+      wantPos.copy(oPos); wantLook.copy(oLook);
+      const shift = tmpA.set(0, 0, 0);
+      if (camera.aspect < 1) shift.z = span.z * 0.28; else shift.x = -span.x * 0.55;
+      wantPos.add(shift); wantLook.add(shift);
+    } else {
+      wantPos.lerpVectors(oPos, dPos, w);
+      wantLook.lerpVectors(oLook, dLook, w);
+    }
+    wantPos.y = Math.max(wantPos.y, groundWorld(wantPos.x, wantPos.z) + 55);
 
-    const k = first || REDUCED ? 1 : 1 - Math.exp(-dt * 3.2);
+    const k = first || REDUCED ? 1 : 1 - Math.exp(-dt * (after ? 2.2 : 3.2));
     first = false;
     camPos.lerp(wantPos, k);
     camLook.lerp(wantLook, k);
@@ -434,7 +563,6 @@ async function start() {
     camera.lookAt(camLook);
 
     // tracé révélé jusqu'au point courant
-    const shownKm = progress > OUTRO ? TOTAL : km;
     const seg = Math.floor(pointAt(shownKm).i);
     lineDone.geometry.setDrawRange(0, seg + 2);
     for (const m of [glowWide, glowMid, core]) m.geometry.setDrawRange(0, seg * 6);
@@ -442,16 +570,21 @@ async function start() {
     dot.position.copy(here).setY(here.y + 6);
     halo.position.copy(here).setY(here.y + 3);
     const pulse = 1 + 0.25 * Math.sin(t / 380);
-    halo.scale.setScalar(pulse * (0.6 + 1.8 * (1 - w)));
-    dot.scale.setScalar(0.6 + 2.2 * (1 - w));
+    const big = after ? (focusStage ? 1.4 : 2.8) : 0.6 + 2.2 * (1 - w);
+    halo.scale.setScalar(pulse * big * 0.9);
+    dot.scale.setScalar(big);
 
     // étiquettes proches
     for (const L of labels) {
       proj.copy(L.v).project(camera);
       const dist = camPos.distanceTo(L.v);
       const edge = L.s.id === "calenzana" || L.s.id === "conca";
-      const show = proj.z < 1 && Math.abs(proj.x) < 1.05 && Math.abs(proj.y) < 1.05 &&
-        (w > 0.6 ? dist < 1300 : edge);
+      let wanted;
+      if (after && focusStage) wanted = L.s.id === focusStage.from || L.s.id === focusStage.to;
+      else if (after && post.kind === "end") wanted = L.s.id === "conca" || L.s.id === "paliri";
+      else if (after) wanted = edge;
+      else wanted = w > 0.6 ? dist < 1300 : edge;
+      const show = proj.z < 1 && Math.abs(proj.x) < 1.05 && Math.abs(proj.y) < 1.05 && wanted;
       if (show) L.el.style.transform = `translate(${(proj.x * 0.5 + 0.5) * innerWidth}px, ${(-proj.y * 0.5 + 0.5) * innerHeight}px) translate(-50%, -100%)`;
       if (show !== L.shown) { L.el.style.opacity = show ? "1" : "0"; L.shown = show; }
     }

@@ -157,6 +157,10 @@ def main():
             "end_km": round(km[c], 2),
         })
 
+    texts = json.loads((ROOT / "data" / "stage_texts.json").read_text())
+    for st in stages:
+        st["text"] = texts[str(st["n"])]
+
     up_all, down_all = climb(ele)
     summary = {
         "km": round(km[-1], 1),
@@ -249,6 +253,7 @@ def main():
                     "Tracé et refuges : © contributeurs OpenStreetMap (ODbL), via mongr20.com"],
     }
 
+    summary["depart"] = stops_doc["trek"].get("depart", {})
     for name, obj in [("summary", summary), ("stages", stages), ("days", days),
                       ("track", track), ("stops", stop_out), ("terrain", terrain)]:
         (OUT / f"{name}.json").write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":")))

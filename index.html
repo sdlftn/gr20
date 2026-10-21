@@ -94,12 +94,94 @@ main { position: relative; z-index: 2; }
 
 .etapes-legende { font-family: var(--f-data); }
 
-/* fin provisoire du jalon 2 */
-.suite { position: relative; z-index: 2; background: var(--nuit); padding-block: 72px 96px; padding-left: var(--pad-x-l); padding-right: var(--pad-x-r); }
-.suite-inner { max-width: 44rem; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
-.suite h2 { font-size: clamp(2.2rem, 7vw, 3.4rem); }
-.suite p { margin: 0; color: var(--granit-2); }
-.credits { font-family: var(--f-data); font-size: .75rem; line-height: 1.7; color: var(--granit-2); border-top: 1px solid rgba(233,226,218,.14); padding-top: 16px; margin-top: 24px; }
+
+
+/* ---------- sections de contenu, posées sur le relief ---------- */
+.bloc { position: relative; min-height: 100svh; display: flex; align-items: center; padding-block: 18svh; padding-left: var(--pad-x-l); padding-right: var(--pad-x-r); }
+.panel { width: 100%; max-width: 34rem; background: rgba(9, 14, 22, .86); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 8px; padding: 28px 24px 30px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 18px 50px rgba(0,0,0,.45); }
+.panel-large { max-width: 40rem; }
+.panel h2 { font-size: clamp(2.3rem, 8vw, 3.4rem); }
+.panel h3 { font-size: 1.35rem; font-weight: 600; }
+.panel p { margin: 0; }
+.aparte { font-size: .98rem; color: var(--granit-2); }
+.aparte b { color: var(--granit); }
+.grille-chiffres { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; margin: 6px 0 2px; }
+.grille-chiffres div { display: flex; flex-direction: column-reverse; gap: 2px; border-top: 1px solid rgba(233,226,218,.14); padding-top: 10px; }
+.grille-chiffres dt { font-family: var(--f-data); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--granit-2); }
+.grille-chiffres dd { margin: 0; font-family: var(--f-display); font-size: 1.3rem; color: var(--granit-2); }
+.grille-chiffres b { font-family: var(--f-display); font-weight: 600; font-size: 2.6rem; line-height: 1; color: var(--granit); }
+.nord-sud { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 16px; margin-top: 6px; }
+.nord-sud > div { display: flex; flex-direction: column; gap: 4px; }
+.nord-sud p { font-size: 1rem; color: var(--granit-2); }
+
+/* étapes : une carte par étape, la carte 3D se recentre */
+.etape { min-height: 92svh; display: flex; align-items: flex-end; padding-block: 12svh 18svh; padding-left: var(--pad-x-l); padding-right: var(--pad-x-r); }
+.etape-carte { width: 100%; max-width: 27rem; background: rgba(9, 14, 22, .88); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 8px; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 10px; border-left: 3px solid var(--neon); box-shadow: 0 18px 50px rgba(0,0,0,.45); }
+.etape-n { display: flex; align-items: baseline; gap: 10px; font-family: var(--f-data); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--granit-2); }
+.etape-n b { font-family: var(--f-display); font-size: 2.4rem; line-height: .9; color: var(--neon); letter-spacing: 0; text-shadow: 0 0 14px rgba(255,43,61,.55); }
+.etape h3 { font-size: 1.55rem; font-weight: 600; }
+.etape p { margin: 0; font-size: 1.02rem; }
+.mesures-etape { display: flex; flex-wrap: wrap; gap: 4px 18px; font-family: var(--f-data); font-size: .85rem; color: var(--granit); margin: 0; padding: 0; list-style: none; }
+.mesures-etape span { color: var(--granit-2); }
+.badge { align-self: flex-start; font-family: var(--f-data); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--granit); border: 1px solid rgba(255,43,61,.6); border-radius: 999px; padding: 3px 10px; }
+
+/* jours */
+.jours, .nuits { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; }
+.jours li { display: grid; grid-template-columns: 3.2rem minmax(0, 1fr) auto; gap: 4px 12px; align-items: baseline; padding: 10px 0; border-top: 1px solid rgba(233,226,218,.12); }
+.jours .j { font-family: var(--f-display); font-weight: 600; font-size: 1.5rem; line-height: 1; }
+.jours .trajet { font-size: 1rem; min-width: 0; }
+.jours .trajet small { display: block; font-family: var(--f-data); font-size: .72rem; letter-spacing: .06em; color: var(--granit-2); text-transform: uppercase; margin-top: 2px; }
+.jours .chiffre { font-family: var(--f-data); font-size: .82rem; text-align: right; color: var(--granit-2); white-space: nowrap; }
+.jours .chiffre b { color: var(--granit); font-weight: 500; }
+.jours li.double .j { color: var(--neon); text-shadow: 0 0 12px rgba(255,43,61,.5); }
+
+/* préparation */
+.sac { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.sac-poids { display: flex; flex-direction: column; }
+.sac-poids b { font-family: var(--f-display); font-weight: 700; font-size: 3.6rem; line-height: .9; }
+.sac-poids span { font-family: var(--f-data); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--granit-2); }
+.sac p { flex: 1 1 14rem; min-width: 0; font-size: 1rem; }
+.liste-sac { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 1rem; }
+.liste-sac li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 10px; border-top: 1px solid rgba(233,226,218,.12); padding-top: 8px; }
+.liste-sac b { font-family: var(--f-data); font-weight: 500; font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--granit-2); padding-top: 4px; }
+.a-rediger { font-family: var(--f-data); font-size: .85rem; line-height: 1.5; color: #ffb3ba; border: 1px dashed rgba(255,43,61,.6); border-radius: 6px; padding: 8px 10px; }
+
+/* famille */
+.nuits li { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr); gap: 12px; padding: 8px 0; border-top: 1px solid rgba(233,226,218,.12); align-items: baseline; }
+.nuits .j { font-family: var(--f-data); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--granit-2); }
+.nuits .lieu { font-family: var(--f-display); font-weight: 600; font-size: 1.25rem; line-height: 1.1; }
+.nuits .lieu small { font-family: var(--f-texte); font-weight: 400; font-size: .9rem; color: var(--granit-2); margin-left: 6px; }
+.infos-famille { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 18px; margin-top: 8px; }
+.infos-famille > div { display: flex; flex-direction: column; gap: 8px; }
+.tel { font-family: var(--f-display); font-weight: 700; font-size: 2rem; color: var(--granit); user-select: all; display: block; }
+
+/* fin */
+.fin { align-items: flex-end; }
+.compte { font-family: var(--f-display); font-size: 1.5rem; line-height: 1.2; }
+.compte b { color: var(--neon); text-shadow: 0 0 14px rgba(255,43,61,.5); }
+.credits { font-family: var(--f-data); font-size: .74rem; line-height: 1.7; color: var(--granit-2); border-top: 1px solid rgba(233,226,218,.14); padding-top: 14px; margin-top: 8px !important; }
+
+/* sommaire latéral */
+.sommaire { position: fixed; z-index: 4; right: max(10px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 4px; }
+.sommaire a { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 6px 4px; text-decoration: none; color: var(--granit); }
+.sommaire a::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: rgba(233,226,218,.45); transition: transform .25s, background .25s; }
+.sommaire a[aria-current="true"]::after { background: var(--neon); transform: scale(1.5); box-shadow: 0 0 10px var(--neon); }
+.sommaire span { font-family: var(--f-data); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; opacity: 0; transform: translateX(6px); transition: opacity .2s, transform .2s; background: var(--voile); padding: 3px 7px; border-radius: 4px; }
+.sommaire a:hover span, .sommaire a:focus-visible span { opacity: 1; transform: none; }
+.sommaire a:focus-visible { outline: 2px solid var(--neon); outline-offset: 2px; border-radius: 4px; }
+.sommaire[data-hidden] { opacity: 0; pointer-events: none; }
+
+@media (max-width: 700px) {
+  .bloc { align-items: flex-end; padding-block: 40svh 10svh; }
+  .panel { padding: 22px 18px 24px; }
+  .sommaire { right: max(2px, env(safe-area-inset-right, 0px)); }
+  .sommaire a { padding: 5px 2px; }
+  .bloc, .etape { padding-right: max(26px, env(safe-area-inset-right, 0px)); }
+}
+@media (min-width: 900px) {
+  .bloc, .etape { padding-left: max(48px, env(safe-area-inset-left, 0px)); }
+  .etape { align-items: center; }
+}
 
 @media (max-width: 520px) {
   .profil-tete span + span { display: none; }
@@ -155,14 +237,99 @@ main { position: relative; z-index: 2; }
     </div>
   </section>
 
-  <section class="suite" id="suite">
-    <div class="suite-inner">
-      <h2>Arrivée à Conca</h2>
-      <p>Le reste du site arrive ensuite : les 16 étapes une par une, mon plan en 12 jours, la préparation et les infos pour la famille.</p>
+  <section class="bloc" id="gr20" data-cam="overview" aria-labelledby="t-gr20">
+    <div class="panel">
+      <span class="eyebrow">Le chemin</span>
+      <h2 id="t-gr20">C'est quoi, le GR20&nbsp;?</h2>
+      <p>Un sentier de grande randonnée qui traverse la Corse en diagonale, de Calenzana, en Balagne, à Conca, près de Porto-Vecchio. Il suit la ligne de partage des eaux : la crête où la pluie hésite entre la mer de l'ouest et celle de l'est.</p>
+      <p>Il a été créé en 1970 par Michel Fabrikant. Son nom vient de l'ancien numéro du département de la Corse. Il est réputé être le sentier de grande randonnée le plus difficile d'Europe, et plus de 12&nbsp;000 personnes s'y lancent chaque année.</p>
+      <dl class="grille-chiffres">
+        <div><dt>longueur</dt><dd><b class="num" data-count="km" data-dec="1">182,9</b> km</dd></div>
+        <div><dt>montée cumulée</dt><dd><b class="num" data-count="up">12 450</b> m</dd></div>
+        <div><dt>point le plus haut</dt><dd><b class="num">2 607</b> m</dd></div>
+        <div><dt>refuges sur le chemin</dt><dd><b class="num" data-count="refuges">14</b></dd></div>
+      </dl>
+      <p class="aparte">La montée cumulée équivaut à grimper <b class="num" id="eiffel">38</b> fois la tour Eiffel (330 m).</p>
+      <div class="nord-sud">
+        <div><h3>Le nord</h3><p>De Calenzana à Vizzavona, 9 étapes. Rocheux, raide, avec des passages techniques et des pierriers.</p></div>
+        <div><h3>Le sud</h3><p>De Vizzavona à Conca, 7 étapes. Des pentes plus douces et un chemin plus roulant, mais des étapes plus longues.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloc" id="etapes" data-cam="overview" aria-labelledby="t-etapes">
+    <div class="panel">
+      <span class="eyebrow">Étape par étape</span>
+      <h2 id="t-etapes">Les 16 étapes</h2>
+      <p>Le découpage officiel, du nord au sud. Chaque étape va d'un refuge au suivant et prend en général entre 4 h 30 et 8 heures de marche. La carte suit le texte.</p>
+      <p class="aparte">Distances et montées calculées depuis le tracé GPS et le relief de l'IGN : elles peuvent différer un peu des topos.</p>
+    </div>
+  </section>
+  <div id="etapes-liste"></div>
+
+  <section class="bloc" id="trek" data-cam="overview" aria-labelledby="t-trek">
+    <div class="panel panel-large">
+      <span class="eyebrow">Mon plan</span>
+      <h2 id="t-trek">Mes 12 jours</h2>
+      <p>Je pars du nord vers le sud, fin juillet ou début août 2027, en dormant chaque soir en refuge. Pour faire les 16 étapes en 12 jours, j'en enchaîne deux le même jour à quatre reprises.</p>
+      <ol class="jours" id="jours"></ol>
+      <p class="aparte">Les jours 2 et 3 sont les plus durs du plan : un double avec plus de 1 500 m de montée, puis l'étape de la pointe des Éboulis.</p>
+    </div>
+  </section>
+
+  <section class="bloc" id="prepa" data-cam="overview" aria-labelledby="t-prepa">
+    <div class="panel">
+      <span class="eyebrow">Avant de partir</span>
+      <h2 id="t-prepa">La préparation</h2>
+      <div class="sac">
+        <div class="sac-poids"><b class="num">6–8</b><span>kg sur le dos</span></div>
+        <p>Pas de tente ni de réchaud : on n'a pas le droit de faire du feu hors des refuges. Je mange au refuge le soir et le matin, et le midi j'emporte un pique-nique acheté sur place.</p>
+      </div>
+      <ul class="liste-sac">
+        <li><b>Dormir</b> un sac de couchage léger : les refuges ont des matelas, mais pas de couvertures.</li>
+        <li><b>Se protéger</b> une vraie veste imperméable, un pantalon de pluie et une polaire pour les soirs en altitude.</li>
+        <li><b>Marcher</b> des chaussures de trail basses et des chaussettes en laine.</li>
+        <li><b>S'orienter</b> une montre GPS avec la carte du tracé.</li>
+        <li><b>Boire</b> deux gourdes fixées sur les bretelles du sac.</li>
+      </ul>
+      <p><b>L'entraînement</b> dure 12 mois, en 7 phases, avec de la course à pied et du renforcement musculaire.</p>
+      <p><b>Les réservations</b> sont obligatoires depuis 2023 pour dormir sur le GR20, même sous tente, sur le site du Parc naturel régional de Corse.</p>
+      <p class="a-rediger">[À RÉDIGER] Où j'en suis dans l'entraînement, et ce qui me fait le plus peur.</p>
+    </div>
+  </section>
+
+  <section class="bloc" id="famille" data-cam="overview" aria-labelledby="t-famille">
+    <div class="panel panel-large">
+      <span class="eyebrow">Pour vous</span>
+      <h2 id="t-famille">Où je suis, chaque soir</h2>
+      <ol class="nuits" id="nuits"></ol>
+      <div class="infos-famille">
+        <div><h3>Le réseau</h3><p class="a-rediger">[À RÉDIGER] Les zones sans réseau, et quand vous aurez de mes nouvelles.</p></div>
+        <div><h3>Quand s'inquiéter</h3><p class="a-rediger">[À RÉDIGER] Le délai sans nouvelles au-delà duquel prévenir quelqu'un, et qui.</p></div>
+        <div><h3>En cas d'urgence</h3><p>Le numéro d'urgence européen, joignable depuis n'importe quel téléphone : <span class="tel num">112</span></p><p class="a-rediger">[À RÉDIGER] Les autres numéros utiles.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloc fin" id="fin" data-cam="end" aria-labelledby="t-fin">
+    <div class="panel">
+      <span class="eyebrow">Arrivée</span>
+      <h2 id="t-fin">Rendez-vous à Conca</h2>
+      <p class="compte"><span id="compte-texte">Départ prévu fin juillet 2027.</span></p>
       <p class="credits">Relief : BD ALTI® IGN, Licence Ouverte Etalab 2.0 · Tracé et refuges : © contributeurs OpenStreetMap (ODbL), via mongr20.com · Distances et dénivelés calculés depuis ces données, à titre indicatif.</p>
     </div>
   </section>
 </main>
+<nav class="sommaire" aria-label="Sommaire">
+  <a href="#haut" data-for="haut"><span>Début</span></a>
+  <a href="#survol" data-for="survol"><span>Survol</span></a>
+  <a href="#gr20" data-for="gr20"><span>Le GR20</span></a>
+  <a href="#etapes" data-for="etapes"><span>Les étapes</span></a>
+  <a href="#trek" data-for="trek"><span>Mes 12 jours</span></a>
+  <a href="#prepa" data-for="prepa"><span>Préparation</span></a>
+  <a href="#famille" data-for="famille"><span>Famille</span></a>
+  <a href="#fin" data-for="fin"><span>Arrivée</span></a>
+</nav>
 
 <div class="profil-wrap" id="profil-wrap">
   <div class="profil-box">
