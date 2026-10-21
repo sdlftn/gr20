@@ -257,7 +257,7 @@ def main():
 
     summary["depart"] = stops_doc["trek"].get("depart", {})
     photos = json.loads((ROOT / "data" / "photos.json").read_text())
-    for name, obj in [("photos", [{k: v for k, v in p.items() if k != "download"} for p in photos]), ("summary", summary), ("stages", stages), ("days", days),
+    for name, obj in [("photos", photos), ("summary", summary), ("stages", stages), ("days", days),
                       ("track", track), ("stops", stop_out), ("terrain", terrain)]:
         (OUT / f"{name}.json").write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":")))
 

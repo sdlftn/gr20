@@ -41,7 +41,8 @@ function hasWebGL() {
 
 const IMG = (window.GR20_IMG_BASE ?? "public/") ;
 function photoImg(p, cls = "") {
-  return `<img src="${IMG}${p.file}" alt="${p.title}" loading="lazy" decoding="async" class="${cls}" onerror="this.closest('[data-photo]')?.setAttribute('data-manque','');this.remove()">`;
+  // copie locale d'abord ; sinon la photo est chargée depuis Wikimedia Commons
+  return `<img src="${IMG}${p.file}" data-distant="${p.download}" alt="${p.title}" loading="lazy" decoding="async" class="${cls}" onerror="if(this.dataset.distant){this.src=this.dataset.distant;this.dataset.distant=''}else{this.closest('[data-photo]')?.setAttribute('data-manque','');this.remove()}">`;
 }
 function renderContent(stages, days, summary, photos) {
   const photoOf = (n) => photos.find((p) => p.stage === n);
