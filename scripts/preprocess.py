@@ -114,7 +114,7 @@ def baked_texture(z, cell, name, max_side):
     warm = np.array([1.08, 0.98, 0.86])  # lumière dorée
     cool = np.array([0.55, 0.60, 0.78])  # ombres bleutées
     light = shade[..., None]
-    img = base * (cool + (warm - cool) * light) * (0.55 + 0.75 * light)
+    img = base * (cool + (warm - cool) * light) * (0.66 + 0.8 * light)
     img = np.clip(img, 0, 255).astype(np.uint8)
     im = Image.fromarray(img, "RGB")
     scale = max_side / max(im.size)

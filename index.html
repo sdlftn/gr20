@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- ARTIFACT-HEAD-START -->
+<title>GR20 de Sacha</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="La traversée de la Corse à pied par le GR20, de Calenzana à Conca, en survol 3D.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Mise en page : un relief 3D fixé en fond, un récit qui défile par-dessus ; codes du balisage GR (rouge et blanc). */
+:root {
+  --nuit: #0d1622;        /* fond, ciel de fin de journée */
+  --nuit-2: #17263a;      /* horizon, brume */
+  --granit: #e9e2da;      /* texte principal, blanc chaud du granit */
+  --granit-2: #a9b2bd;    /* texte secondaire */
+  --balise: #d8343c;      /* rouge du balisage GR */
+  --balise-blanc: #f4f1ec;/* blanc du balisage GR */
+  --voile: rgba(9, 15, 24, .72);
+  --f-display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-texte: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-data: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --pad-x-l: max(16px, env(safe-area-inset-left, 0px));
+  --pad-x-r: max(16px, env(safe-area-inset-right, 0px));
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--nuit); color: var(--granit); }
+body { margin: 0; font-family: var(--f-texte); font-size: 1.125rem; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 600; text-wrap: balance; margin: 0; line-height: 1.02; letter-spacing: .01em; }
+.num { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+
+/* ---------- scène 3D en fond ---------- */
+#scene {
+  position: fixed; inset: 0; z-index: 0;
+  background: linear-gradient(180deg, #0b1320 0%, #1b2a40 46%, #3b3f4d 62%, var(--nuit-2) 100%);
+}
+#scene canvas { display: block; width: 100%; height: 100%; }
+#scene-fallback { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px var(--pad-x-r) 24px var(--pad-x-l); text-align: center; color: var(--granit-2); }
+#chargement { position: absolute; left: 50%; bottom: 24%; transform: translateX(-50%); font-family: var(--f-data); font-size: .8rem; letter-spacing: .08em; color: var(--granit-2); transition: opacity .6s; }
+#chargement[data-done] { opacity: 0; pointer-events: none; }
+
+/* ---------- étiquettes des refuges ---------- */
+#labels { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.lbl { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; gap: 4px; opacity: 0; transition: opacity .35s; will-change: transform; }
+.lbl span { font-family: var(--f-display); font-weight: 600; font-size: .95rem; letter-spacing: .04em; text-transform: uppercase; color: var(--balise-blanc); text-shadow: 0 1px 6px rgba(0,0,0,.9); white-space: nowrap; }
+.lbl i { width: 2px; height: 22px; background: linear-gradient(var(--balise-blanc) 50%, var(--balise) 50%); }
+.lbl.village span { color: #ffd9a8; }
+
+/* ---------- récit ---------- */
+main { position: relative; z-index: 2; }
+.ouverture { min-height: 92svh; display: flex; flex-direction: column; justify-content: flex-end; gap: 20px; padding-block: 18svh 64px; padding-left: var(--pad-x-l); padding-right: var(--pad-x-r); background: linear-gradient(180deg, rgba(13,22,34,0) 0%, rgba(13,22,34,0) 40%, rgba(13,22,34,.78) 100%); }
+.ouverture-inner { max-width: 44rem; display: flex; flex-direction: column; gap: 18px; }
+.eyebrow { font-family: var(--f-data); font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; color: var(--granit-2); }
+.titre { display: flex; align-items: center; gap: 18px; }
+.titre h1 { font-size: clamp(5.2rem, 22vw, 11rem); font-weight: 700; letter-spacing: -.01em; }
+.balise { display: inline-grid; grid-template-rows: 1fr 1fr; width: clamp(34px, 7vw, 56px); height: clamp(30px, 6vw, 46px); border-radius: 2px; overflow: hidden; flex: none; }
+.balise::before { content: ""; background: var(--balise-blanc); }
+.balise::after { content: ""; background: var(--balise); }
+.ouverture .chapo { font-size: clamp(1.15rem, 3.6vw, 1.45rem); max-width: 34rem; margin: 0; }
+.chiffres { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 4px 0 0; padding: 0; list-style: none; }
+.chiffres li { display: flex; flex-direction: column; }
+.chiffres b { font-family: var(--f-display); font-weight: 600; font-size: 2rem; line-height: 1; }
+.chiffres small { font-family: var(--f-data); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--granit-2); }
+.indice { display: flex; align-items: center; gap: 10px; font-family: var(--f-data); font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--granit-2); }
+.indice::before { content: ""; width: 1px; height: 28px; background: linear-gradient(var(--granit-2), transparent); animation: tomber 2.2s ease-in-out infinite; }
+@keyframes tomber { 0%,100% { transform: translateY(-4px); opacity: .4 } 50% { transform: translateY(4px); opacity: 1 } }
+
+/* section survolée : sa hauteur donne la longueur du survol */
+#survol { height: 900svh; position: relative; }
+.carton { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 14px); padding-left: var(--pad-x-l); padding-right: var(--pad-x-r); display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; pointer-events: none; }
+.hud { pointer-events: auto; background: var(--voile); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 6px; padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 2px; min-width: 0; max-width: 26rem; border-left: 3px solid var(--balise); opacity: 0; transform: translateY(-6px); transition: opacity .4s, transform .4s; }
+.hud[data-on] { opacity: 1; transform: none; }
+.hud .jour { font-family: var(--f-data); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--granit-2); }
+.hud .etape { font-family: var(--f-display); font-weight: 600; font-size: 1.35rem; line-height: 1.1; }
+.hud .mesures { display: flex; flex-wrap: wrap; gap: 2px 16px; white-space: nowrap; font-family: var(--f-data); font-size: .85rem; color: var(--granit); }
+.hud .mesures em { font-style: normal; color: var(--granit-2); }
+
+.lecture { pointer-events: auto; flex: none; font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; letter-spacing: .06em; text-transform: uppercase; color: var(--nuit); background: var(--balise-blanc); border: 0; border-radius: 999px; padding: 9px 18px 9px 14px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 18px rgba(0,0,0,.35); }
+.lecture:hover { background: #fff; }
+.lecture:focus-visible, .profil:focus-visible { outline: 3px solid var(--balise); outline-offset: 3px; }
+.lecture svg { width: 14px; height: 14px; fill: currentColor; }
+
+/* profil altimétrique, fixé en bas pendant le survol */
+.profil-wrap { position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; padding: 0 var(--pad-x-r) calc(env(safe-area-inset-bottom, 0px) + 12px) var(--pad-x-l); transition: opacity .45s, transform .45s; opacity: 0; transform: translateY(12px); pointer-events: none; }
+.profil-wrap[data-on] { opacity: 1; transform: none; pointer-events: auto; }
+.profil-box { background: var(--voile); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 6px; padding: 8px 10px 6px; }
+.profil-tete { display: flex; justify-content: space-between; gap: 12px; font-family: var(--f-data); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--granit-2); padding: 0 2px 4px; }
+.profil { display: block; width: 100%; height: 86px; cursor: pointer; touch-action: none; }
+
+.etapes-legende { font-family: var(--f-data); }
+
+/* fin provisoire du jalon 2 */
+.suite { position: relative; z-index: 2; background: var(--nuit); padding-block: 72px 96px; padding-left: var(--pad-x-l); padding-right: var(--pad-x-r); }
+.suite-inner { max-width: 44rem; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.suite h2 { font-size: clamp(2.2rem, 7vw, 3.4rem); }
+.suite p { margin: 0; color: var(--granit-2); }
+.credits { font-family: var(--f-data); font-size: .75rem; line-height: 1.7; color: var(--granit-2); border-top: 1px solid rgba(233,226,218,.14); padding-top: 16px; margin-top: 24px; }
+
+@media (max-width: 520px) {
+  .profil-tete span + span { display: none; }
+  .hud { padding: 8px 12px 10px; }
+  .hud .etape { font-size: 1.2rem; }
+  .lecture { padding: 8px 14px 8px 12px; font-size: .95rem; }
+}
+@media (min-width: 900px) {
+  .profil { height: 104px; }
+  .hud .etape { font-size: 1.6rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .indice::before { animation: none; }
+  .hud, .profil-wrap, .lbl { transition: none; }
+}
+</style>
+<!-- ARTIFACT-HEAD-END -->
+</head>
+<body>
+<!-- ARTIFACT-BODY-START -->
+<div id="scene" aria-hidden="true">
+  <div id="chargement">Chargement du relief…</div>
+</div>
+<div id="labels" aria-hidden="true"></div>
+
+<main>
+  <header class="ouverture" id="haut">
+    <div class="ouverture-inner">
+      <span class="eyebrow">Corse · fin juillet 2027</span>
+      <div class="titre"><span class="balise" aria-hidden="true"></span><h1>GR20</h1></div>
+      <p class="chapo">La traversée de la Corse à pied, par ses crêtes, du nord au sud. Je vais la marcher en douze jours.</p>
+      <ul class="chiffres">
+        <li><b class="num" data-k="km">182,9</b><small>kilomètres</small></li>
+        <li><b class="num" data-k="up">12 450</b><small>mètres de montée</small></li>
+        <li><b class="num">16</b><small>étapes</small></li>
+        <li><b class="num">12</b><small>jours</small></li>
+      </ul>
+      <span class="indice">Faites défiler pour survoler le chemin</span>
+    </div>
+  </header>
+
+  <section id="survol" aria-label="Survol du tracé">
+    <div class="carton">
+      <div class="hud" id="hud" aria-live="polite">
+        <span class="jour" id="hud-jour">Jour 1 · étape 1 sur 16</span>
+        <span class="etape" id="hud-etape">Calenzana → Ortu di u Piobbu</span>
+        <span class="mesures"><span><em>alt.</em> <span class="num" id="hud-alt">275</span> m</span><span><em>km</em> <span class="num" id="hud-km">0,0</span> / 182,9</span></span>
+      </div>
+      <button class="lecture" id="lecture" type="button" aria-pressed="false">
+        <svg viewBox="0 0 14 14" aria-hidden="true"><path id="lecture-ico" d="M2 1l11 6-11 6z"/></svg>
+        <span id="lecture-txt">Lecture</span>
+      </button>
+    </div>
+  </section>
+
+  <section class="suite" id="suite">
+    <div class="suite-inner">
+      <h2>Arrivée à Conca</h2>
+      <p>Le reste du site arrive ensuite : les 16 étapes une par une, mon plan en 12 jours, la préparation et les infos pour la famille.</p>
+      <p class="credits">Relief : BD ALTI® IGN, Licence Ouverte Etalab 2.0 · Tracé et refuges : © contributeurs OpenStreetMap (ODbL), via mongr20.com · Distances et dénivelés calculés depuis ces données, à titre indicatif.</p>
+    </div>
+  </section>
+</main>
+
+<div class="profil-wrap" id="profil-wrap">
+  <div class="profil-box">
+    <div class="profil-tete"><span>Profil du chemin</span><span>Touchez pour aller à un point</span></div>
+    <canvas class="profil" id="profil" tabindex="0" aria-label="Profil altimétrique du GR20 ; flèches gauche et droite pour avancer"></canvas>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module" src="src/main.js"></script>
+<!-- ARTIFACT-BODY-END -->
+</body>
+</html>
