@@ -1,0 +1,40 @@
+{
+  "source": "Coordonnées OpenStreetMap (via Nominatim), © contributeurs OpenStreetMap, ODbL. Recalées automatiquement sur le tracé par scripts/preprocess.py.",
+  "stops": [
+    {"id": "calenzana", "name": "Calenzana", "type": "village", "lat": 42.50635, "lon": 8.855133},
+    {"id": "ortu", "name": "Ortu di u Piobbu", "type": "refuge", "lat": 42.4652, "lon": 8.90688},
+    {"id": "carrozzu", "name": "Carrozzu", "type": "refuge", "lat": 42.42626, "lon": 8.90047},
+    {"id": "ascu", "name": "Ascu Stagnu", "type": "refuge", "lat": 42.4035, "lon": 8.92231},
+    {"id": "tighjettu", "name": "Tighjettu", "type": "refuge", "lat": 42.36225, "lon": 8.90883},
+    {"id": "ciottulu", "name": "Ciottulu di i Mori", "type": "refuge", "lat": 42.33495, "lon": 8.86814},
+    {"id": "manganu", "name": "Manganu", "type": "refuge", "lat": 42.21982, "lon": 8.98046},
+    {"id": "petrapiana", "name": "Petra Piana", "type": "refuge", "lat": 42.19807, "lon": 9.05245},
+    {"id": "onda", "name": "L'Onda", "type": "refuge", "lat": 42.15216, "lon": 9.07284},
+    {"id": "vizzavona", "name": "Vizzavona", "type": "village", "lat": 42.12858, "lon": 9.13376},
+    {"id": "capannelle", "name": "E Capannelle", "type": "refuge", "lat": 42.07793, "lon": 9.14971},
+    {"id": "prati", "name": "Prati", "type": "refuge", "lat": 42.00865, "lon": 9.21828},
+    {"id": "usciolu", "name": "Usciolu", "type": "refuge", "lat": 41.93513, "lon": 9.20598},
+    {"id": "matalza", "name": "Matalza", "type": "refuge", "lat": 41.87429, "lon": 9.1524},
+    {"id": "asinau", "name": "Asinau", "type": "refuge", "lat": 41.84148, "lon": 9.21434},
+    {"id": "paliri", "name": "I Paliri", "type": "refuge", "lat": 41.79416, "lon": 9.25961},
+    {"id": "conca", "name": "Conca", "type": "village", "lat": 41.73478, "lon": 9.333997}
+  ],
+  "trek": {
+    "direction": "nord-sud",
+    "period": "fin juillet / début août 2027",
+    "days": [
+      {"day": 1, "stages": [1], "night": "ortu"},
+      {"day": 2, "stages": [2, 3], "night": "ascu"},
+      {"day": 3, "stages": [4], "night": "tighjettu"},
+      {"day": 4, "stages": [5], "night": "ciottulu"},
+      {"day": 5, "stages": [6], "night": "manganu"},
+      {"day": 6, "stages": [7], "night": "petrapiana"},
+      {"day": 7, "stages": [8, 9], "night": "vizzavona"},
+      {"day": 8, "stages": [10], "night": "capannelle"},
+      {"day": 9, "stages": [11], "night": "prati"},
+      {"day": 10, "stages": [12, 13], "night": "matalza"},
+      {"day": 11, "stages": [14, 15], "night": "paliri"},
+      {"day": 12, "stages": [16], "night": "conca"}
+    ]
+  }
+}
