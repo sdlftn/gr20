@@ -17,9 +17,9 @@
   --nuit-2: #17263a;      /* horizon, brume */
   --granit: #e9e2da;      /* texte principal, blanc chaud du granit */
   --granit-2: #a9b2bd;    /* texte secondaire */
-  --balise: #d8343c;      /* rouge du balisage GR */
+  --balise: #2bff8a;      /* vert néon (accent) */
   --balise-blanc: #f4f1ec;/* blanc du balisage GR */
-  --neon: #ff2b3d;        /* tracé néon */
+  --neon: #2bff8a;        /* tracé néon */
   --voile: rgba(9, 15, 24, .72);
   --f-display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
   --f-texte: "Source Serif 4", Georgia, "Times New Roman", serif;
@@ -115,15 +115,15 @@ main { position: relative; z-index: 2; }
 .nord-sud p { font-size: 1rem; color: var(--granit-2); }
 
 /* étapes : une carte par étape, la carte 3D se recentre */
-.etape { min-height: 92svh; display: flex; align-items: flex-end; padding-block: 12svh 18svh; padding-left: var(--pad-x-l); padding-right: var(--pad-x-r); }
+.etape-bloc { min-height: 92svh; display: flex; align-items: flex-end; padding-block: 12svh 18svh; padding-left: var(--pad-x-l); padding-right: var(--pad-x-r); }
 .etape-carte { width: 100%; max-width: 27rem; background: rgba(9, 14, 22, .88); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 8px; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 10px; border-left: 3px solid var(--neon); box-shadow: 0 18px 50px rgba(0,0,0,.45); }
 .etape-n { display: flex; align-items: baseline; gap: 10px; font-family: var(--f-data); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--granit-2); }
-.etape-n b { font-family: var(--f-display); font-size: 2.4rem; line-height: .9; color: var(--neon); letter-spacing: 0; text-shadow: 0 0 14px rgba(255,43,61,.55); }
-.etape h3 { font-size: 1.55rem; font-weight: 600; }
-.etape p { margin: 0; font-size: 1.02rem; }
+.etape-n b { font-family: var(--f-display); font-size: 2.4rem; line-height: .9; color: var(--neon); letter-spacing: 0; text-shadow: 0 0 14px rgba(43,255,138,.55); }
+.etape-bloc h3 { font-size: 1.55rem; font-weight: 600; }
+.etape-bloc p { margin: 0; font-size: 1.02rem; }
 .mesures-etape { display: flex; flex-wrap: wrap; gap: 4px 18px; font-family: var(--f-data); font-size: .85rem; color: var(--granit); margin: 0; padding: 0; list-style: none; }
 .mesures-etape span { color: var(--granit-2); }
-.badge { align-self: flex-start; font-family: var(--f-data); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--granit); border: 1px solid rgba(255,43,61,.6); border-radius: 999px; padding: 3px 10px; }
+.badge { align-self: flex-start; font-family: var(--f-data); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--granit); border: 1px solid rgba(43,255,138,.6); border-radius: 999px; padding: 3px 10px; }
 
 /* jours */
 .jours, .nuits { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; }
@@ -133,7 +133,7 @@ main { position: relative; z-index: 2; }
 .jours .trajet small { display: block; font-family: var(--f-data); font-size: .72rem; letter-spacing: .06em; color: var(--granit-2); text-transform: uppercase; margin-top: 2px; }
 .jours .chiffre { font-family: var(--f-data); font-size: .82rem; text-align: right; color: var(--granit-2); white-space: nowrap; }
 .jours .chiffre b { color: var(--granit); font-weight: 500; }
-.jours li.double .j { color: var(--neon); text-shadow: 0 0 12px rgba(255,43,61,.5); }
+.jours li.double .j { color: var(--neon); text-shadow: 0 0 12px rgba(43,255,138,.5); }
 
 /* préparation */
 .sac { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
@@ -144,7 +144,6 @@ main { position: relative; z-index: 2; }
 .liste-sac { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 1rem; }
 .liste-sac li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 10px; border-top: 1px solid rgba(233,226,218,.12); padding-top: 8px; }
 .liste-sac b { font-family: var(--f-data); font-weight: 500; font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--granit-2); padding-top: 4px; }
-.a-rediger { font-family: var(--f-data); font-size: .85rem; line-height: 1.5; color: #ffb3ba; border: 1px dashed rgba(255,43,61,.6); border-radius: 6px; padding: 8px 10px; }
 
 /* famille */
 .nuits li { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr); gap: 12px; padding: 8px 0; border-top: 1px solid rgba(233,226,218,.12); align-items: baseline; }
@@ -158,8 +157,47 @@ main { position: relative; z-index: 2; }
 /* fin */
 .fin { align-items: flex-end; }
 .compte { font-family: var(--f-display); font-size: 1.5rem; line-height: 1.2; }
-.compte b { color: var(--neon); text-shadow: 0 0 14px rgba(255,43,61,.5); }
+.compte b { color: var(--neon); text-shadow: 0 0 14px rgba(43,255,138,.5); }
 .credits { font-family: var(--f-data); font-size: .74rem; line-height: 1.7; color: var(--granit-2); border-top: 1px solid rgba(233,226,218,.14); padding-top: 14px; margin-top: 8px !important; }
+
+
+/* paysages */
+.paysages { position: relative; padding-block: 16svh 10svh; padding-left: var(--pad-x-l); padding-right: var(--pad-x-r); background: linear-gradient(180deg, rgba(15,23,34,0) 0%, rgba(15,23,34,.94) 12%, rgba(15,23,34,.94) 88%, rgba(15,23,34,0) 100%); display: flex; flex-direction: column; gap: 22px; }
+.paysages-tete { max-width: 72rem; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+.paysages h2 { font-size: clamp(2.3rem, 8vw, 3.4rem); }
+.galerie { max-width: 72rem; width: 100%; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr)); gap: 14px; }
+.photo { margin: 0; display: flex; flex-direction: column; background: rgba(9,14,22,.9); border-radius: 8px; overflow: hidden; }
+.photo-img { position: relative; aspect-ratio: 4 / 3; max-width: 100%; background: #1a2330; overflow: hidden; }
+.photo img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s; }
+.etape-photo[data-manque] { display: none; }
+.photo .etiquette { z-index: 2; }
+.photo:hover img { transform: scale(1.03); }
+.photo .etiquette { position: absolute; left: 10px; top: 10px; font-family: var(--f-data); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: #06140c; background: var(--neon); border-radius: 999px; padding: 3px 9px; }
+.photo figcaption { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; }
+.photo figcaption b { font-family: var(--f-display); font-weight: 600; font-size: 1.3rem; line-height: 1.1; }
+.photo figcaption span { font-size: .95rem; color: var(--granit-2); }
+.photo figcaption small { font-family: var(--f-data); font-size: .68rem; color: var(--granit-2); opacity: .8; }
+.photo figcaption small a { color: inherit; }
+.photo-vide { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--f-data); font-size: .75rem; color: var(--granit-2); text-align: center; padding: 12px; }
+.etape-photo { margin: 2px 0 0; border-radius: 6px; overflow: hidden; aspect-ratio: 16 / 9; max-width: 100%; background: #1a2330; }
+.etape-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.conseil { font-size: .95rem !important; color: var(--granit-2); border-left: 2px solid rgba(43,255,138,.5); padding-left: 10px; }
+.conseil b { font-family: var(--f-data); font-weight: 500; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--neon); margin-right: 6px; }
+
+/* sécurité */
+.regles { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 16px 22px; }
+.regles > div { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid rgba(233,226,218,.14); padding-top: 10px; }
+.regles p { font-size: 1rem; color: var(--granit); }
+.numeros { display: flex; flex-wrap: wrap; gap: 12px 28px; margin-top: 6px; }
+.numeros > div { display: flex; flex-direction: column; }
+.numeros span:last-child { font-family: var(--f-data); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--granit-2); max-width: 15rem; }
+.tel-petit { font-size: 1.4rem !important; }
+
+/* réseau par soir */
+.reseau { font-family: var(--f-data); font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; border-radius: 999px; padding: 2px 8px; margin-left: 8px; vertical-align: middle; white-space: nowrap; }
+.reseau.aucun { color: var(--granit-2); border: 1px solid rgba(233,226,218,.25); }
+.reseau.incertain, .reseau.variable { color: #b8ffd8; border: 1px dashed rgba(43,255,138,.55); }
+.reseau.oui { color: #06140c; background: var(--neon); }
 
 /* sommaire latéral */
 .sommaire { position: fixed; z-index: 4; right: max(10px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 4px; }
@@ -176,11 +214,11 @@ main { position: relative; z-index: 2; }
   .panel { padding: 22px 18px 24px; }
   .sommaire { right: max(2px, env(safe-area-inset-right, 0px)); }
   .sommaire a { padding: 5px 2px; }
-  .bloc, .etape { padding-right: max(26px, env(safe-area-inset-right, 0px)); }
+  .bloc, .etape-bloc { padding-right: max(26px, env(safe-area-inset-right, 0px)); }
 }
 @media (min-width: 900px) {
-  .bloc, .etape { padding-left: max(48px, env(safe-area-inset-left, 0px)); }
-  .etape { align-items: center; }
+  .bloc, .etape-bloc { padding-left: max(48px, env(safe-area-inset-left, 0px)); }
+  .etape-bloc { align-items: center; }
 }
 
 @media (max-width: 520px) {
@@ -267,13 +305,21 @@ main { position: relative; z-index: 2; }
   </section>
   <div id="etapes-liste"></div>
 
+  <section class="paysages" id="paysages" data-cam="overview" aria-labelledby="t-paysages">
+    <div class="paysages-tete">
+      <span class="eyebrow">En images</span>
+      <h2 id="t-paysages">Les plus beaux paysages</h2>
+    </div>
+    <div class="galerie" id="galerie"></div>
+  </section>
+
   <section class="bloc" id="trek" data-cam="overview" aria-labelledby="t-trek">
     <div class="panel panel-large">
       <span class="eyebrow">Mon plan</span>
       <h2 id="t-trek">Mes 12 jours</h2>
       <p>Je pars du nord vers le sud, fin juillet ou début août 2027, en dormant chaque soir en refuge. Pour faire les 16 étapes en 12 jours, j'en enchaîne deux le même jour à quatre reprises.</p>
       <ol class="jours" id="jours"></ol>
-      <p class="aparte">Les jours 2 et 3 sont les plus durs du plan : un double avec plus de 1 500 m de montée, puis l'étape de la pointe des Éboulis.</p>
+      <p class="aparte">Les jours 2 et 3 sont les plus exigeants du plan : un double avec plus de 1 500 m de montée, puis l'étape de la pointe des Éboulis. Les suivants sont plus doux.</p>
     </div>
   </section>
 
@@ -294,7 +340,25 @@ main { position: relative; z-index: 2; }
       </ul>
       <p><b>L'entraînement</b> dure 12 mois, en 7 phases, avec de la course à pied et du renforcement musculaire.</p>
       <p><b>Les réservations</b> sont obligatoires depuis 2023 pour dormir sur le GR20, même sous tente, sur le site du Parc naturel régional de Corse.</p>
-      <p class="a-rediger">[À RÉDIGER] Où j'en suis dans l'entraînement, et ce qui me fait le plus peur.</p>
+    </div>
+  </section>
+
+  <section class="bloc" id="securite" data-cam="overview" aria-labelledby="t-secu">
+    <div class="panel panel-large">
+      <span class="eyebrow">Sereinement</span>
+      <h2 id="t-secu">La sécurité</h2>
+      <div class="regles">
+        <div><h3>La météo d'abord</h3><p>En été, les orages éclatent souvent en début d'après-midi. Je pars tôt pour passer les endroits hauts le matin, je regarde la météo de montagne chaque jour, et je ne m'engage pas sur une crête si le temps est douteux. Attendre ou faire demi-tour fait partie du jeu.</p></div>
+        <div><h3>Le risque d'incendie</h3><p>Du 15 juin au 30 septembre, feu et cigarette sont interdits dans les massifs. Quand le risque est très fort, le GR20 peut être fermé quelques jours : je garde une ou deux journées de marge.</p></div>
+        <div><h3>Pouvoir s'arrêter</h3><p>Vizzavona, à mi-chemin, est reliée par le train. Haut-Asco et Bavella sont accessibles par la route. Raccourcir ou s'arrêter reste toujours possible.</p></div>
+        <div><h3>Les secours</h3><p>Le 112 fonctionne depuis n'importe quel téléphone, même sans le réseau de son opérateur. Le 114 permet d'appeler les secours par SMS. En montagne, ce sont les gendarmes du PGHM qui interviennent.</p></div>
+      </div>
+      <div class="numeros">
+        <div><span class="tel num">112</span><span>urgences, appel</span></div>
+        <div><span class="tel num">114</span><span>urgences, par SMS</span></div>
+        <div><span class="tel tel-petit num">04 95 47 71 46</span><span>PGHM de Corte, pour se renseigner avant de partir</span></div>
+      </div>
+      <p class="aparte">D'après le guide sécurité de mongr20.com.</p>
     </div>
   </section>
 
@@ -304,10 +368,10 @@ main { position: relative; z-index: 2; }
       <h2 id="t-famille">Où je suis, chaque soir</h2>
       <ol class="nuits" id="nuits"></ol>
       <div class="infos-famille">
-        <div><h3>Le réseau</h3><p class="a-rediger">[À RÉDIGER] Les zones sans réseau, et quand vous aurez de mes nouvelles.</p></div>
-        <div><h3>Quand s'inquiéter</h3><p class="a-rediger">[À RÉDIGER] Le délai sans nouvelles au-delà duquel prévenir quelqu'un, et qui.</p></div>
-        <div><h3>En cas d'urgence</h3><p>Le numéro d'urgence européen, joignable depuis n'importe quel téléphone : <span class="tel num">112</span></p><p class="a-rediger">[À RÉDIGER] Les autres numéros utiles.</p></div>
+        <div><h3>Pas de nouvelles, pas d'inquiétude</h3><p>Cinq de mes onze nuits en refuge sont sans réseau du tout. Le téléphone passe surtout sur les crêtes, les cols et là où arrive une route : Haut-Asco, Vizzavona et Bavella. Un soir sans message, c'est normal.</p></div>
+        <div><h3>La batterie</h3><p>Les refuges n'ont presque pas d'électricité, au mieux quelques panneaux solaires. Il faut donc une batterie externe, et le mode avion la journée pour économiser.</p></div>
       </div>
+      <p class="aparte">Réseau indiqué pour chaque soir d'après mongr20.com, à titre indicatif.</p>
     </div>
   </section>
 
@@ -316,7 +380,8 @@ main { position: relative; z-index: 2; }
       <span class="eyebrow">Arrivée</span>
       <h2 id="t-fin">Rendez-vous à Conca</h2>
       <p class="compte"><span id="compte-texte">Départ prévu fin juillet 2027.</span></p>
-      <p class="credits">Relief : BD ALTI® IGN, Licence Ouverte Etalab 2.0 · Tracé et refuges : © contributeurs OpenStreetMap (ODbL), via mongr20.com · Distances et dénivelés calculés depuis ces données, à titre indicatif.</p>
+      <p class="credits">Relief : BD ALTI® IGN, Licence Ouverte Etalab 2.0 · Tracé et refuges : © contributeurs OpenStreetMap (ODbL), via mongr20.com · Distances et dénivelés calculés depuis ces données, à titre indicatif. · Conseils, sécurité et réseau : mongr20.com.</p>
+      <p class="credits" id="credits-photos"></p>
     </div>
   </section>
 </main>
@@ -325,8 +390,10 @@ main { position: relative; z-index: 2; }
   <a href="#survol" data-for="survol"><span>Survol</span></a>
   <a href="#gr20" data-for="gr20"><span>Le GR20</span></a>
   <a href="#etapes" data-for="etapes"><span>Les étapes</span></a>
+  <a href="#paysages" data-for="paysages"><span>Paysages</span></a>
   <a href="#trek" data-for="trek"><span>Mes 12 jours</span></a>
   <a href="#prepa" data-for="prepa"><span>Préparation</span></a>
+  <a href="#securite" data-for="securite"><span>Sécurité</span></a>
   <a href="#famille" data-for="famille"><span>Famille</span></a>
   <a href="#fin" data-for="fin"><span>Arrivée</span></a>
 </nav>

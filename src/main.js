@@ -39,13 +39,18 @@ function hasWebGL() {
   } catch { return false; }
 }
 
-function renderContent(stages, days, summary) {
+const IMG = (window.GR20_IMG_BASE ?? "public/") ;
+function photoImg(p, cls = "") {
+  return `<img src="${IMG}${p.file}" alt="${p.title}" loading="lazy" decoding="async" class="${cls}" onerror="this.closest('[data-photo]')?.setAttribute('data-manque','');this.remove()">`;
+}
+function renderContent(stages, days, summary, photos) {
+  const photoOf = (n) => photos.find((p) => p.stage === n);
   // 16 étapes
   const liste = $("etapes-liste");
   const dayOf = (n) => days.find((d) => d.stages.includes(n));
   liste.innerHTML = stages.map((s) => {
     const d = dayOf(s.n);
-    return `<article class="etape" id="etape-${s.n}" data-cam="stage:${s.n}" aria-labelledby="t-e${s.n}">
+    return `<article class="etape-bloc" id="etape-${s.n}" data-cam="stage:${s.n}" aria-labelledby="t-e${s.n}">
       <div class="etape-carte">
         <div class="etape-n"><b class="num">${s.n}</b><span>étape sur 16 · mon jour ${d.day}</span></div>
         <h3 id="t-e${s.n}">${s.from_name} → ${s.to_name}</h3>
@@ -55,7 +60,9 @@ function renderContent(stages, days, summary) {
           <li>−${fmt(s.down)} <span>m</span></li>
           <li><span>jusqu'à</span> ${fmt(s.max_alt)} <span>m</span></li>
         </ul>
+        ${photoOf(s.n) ? `<div class="etape-photo" data-photo>${photoImg(photoOf(s.n))}</div>` : ""}
         <p>${s.text}</p>
+        ${s.conseil ? `<p class="conseil"><b>Le conseil</b>${s.conseil}</p>` : ""}
         ${d.doubled ? `<span class="badge">Enchaînée avec l'étape ${d.stages.find((x) => x !== s.n)} le même jour</span>` : ""}
       </div>
     </article>`;
@@ -69,9 +76,18 @@ function renderContent(stages, days, summary) {
     </li>`).join("");
 
   // nuits
+  const RES = { aucun: "pas de réseau", incertain: "réseau incertain", variable: "réseau variable", oui: "réseau" };
   $("nuits").innerHTML = days.map((d) => `<li><span class="j">Jour ${d.day}</span>
-      <span class="lieu">${d.night ? `Refuge ${d.night}` : "Conca, arrivée"}${d.night && /Vizzavona|Ascu/.test(d.night) ? "<small>(plusieurs hébergements)</small>" : ""}</span></li>`).join("");
+      <span class="lieu">${d.night ? `Refuge ${d.night}` : "Conca, arrivée"}${d.night && /Vizzavona|Ascu/.test(d.night) ? "<small>(plusieurs hébergements)</small>" : ""}<span class="reseau ${d.reseau}">${RES[d.reseau] || RES.incertain}</span></span></li>`).join("");
   $("nuits").querySelectorAll(".lieu").forEach((el) => { el.innerHTML = el.innerHTML.replace("Refuge Vizzavona", "Vizzavona"); });
+
+  // galerie
+  $("galerie").innerHTML = photos.map((p) => `<figure class="photo">
+      <div class="photo-img" data-photo>${photoImg(p)}<span class="photo-vide">Photo à venir</span><span class="etiquette">étape ${p.stage}</span></div>
+      <figcaption><b>${p.title}</b><span>${p.caption}</span>
+      <small>Photo ${p.author}, <a href="${p.source}" target="_blank" rel="noopener">${p.license}</a>, Wikimedia Commons</small></figcaption>
+    </figure>`).join("");
+  $("credits-photos").textContent = "Photos : " + photos.map((p) => `${p.title}, ${p.author} (${p.license})`).join(" · ") + ", via Wikimedia Commons.";
 
   // comparaison tour Eiffel (330 m)
   $("eiffel").textContent = fmt(Math.round(summary.up / 330));
@@ -111,15 +127,15 @@ function renderContent(stages, days, summary) {
 }
 
 async function start() {
-  const [terrain, track, stops, stages, days, summary] = await Promise.all(
-    ["terrain.json", "track.json", "stops.json", "stages.json", "days.json", "summary.json"].map(getJSON));
+  const [terrain, track, stops, stages, days, summary, photos] = await Promise.all(
+    ["terrain.json", "track.json", "stops.json", "stages.json", "days.json", "summary.json", "photos.json"].map(getJSON));
 
   document.querySelectorAll("[data-k]").forEach((el) => {
     const k = el.dataset.k;
     el.textContent = k === "km" ? fmt(summary.km, 1) : fmt(summary[k]);
   });
 
-  renderContent(stages, days, summary);
+  renderContent(stages, days, summary, photos);
 
   if (!hasWebGL()) {
     $("chargement").remove();
@@ -268,24 +284,24 @@ async function start() {
   }
   // chemin à venir : fil rouge discret
   const lineGeo = new THREE.BufferGeometry().setFromPoints(P.map((v) => v.clone().setY(v.y + 3)));
-  const lineFull = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: 0xff2b3d, transparent: true, opacity: 0.32, depthWrite: false, fog: false }));
+  const lineFull = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: 0x2bff8a, transparent: true, opacity: 0.3, depthWrite: false, fog: false }));
   lineFull.renderOrder = 1;
   scene.add(lineFull);
   // chemin parcouru : néon rouge (cœur vif + deux halos additifs)
-  const lineDone = new THREE.Line(lineGeo.clone(), new THREE.LineBasicMaterial({ color: 0xff3347, depthWrite: false, fog: false }));
+  const lineDone = new THREE.Line(lineGeo.clone(), new THREE.LineBasicMaterial({ color: 0x3dff96, depthWrite: false, fog: false }));
   lineDone.renderOrder = 2;
   scene.add(lineDone);
-  const glowWide = ribbon(6, 2.2, 0xff1f35, 0.12);
-  const glowMid = ribbon(2.8, 2.5, 0xff2b3d, 0.4);
-  const core = ribbon(1.15, 2.9, 0xffb3ba, 1);
+  const glowWide = ribbon(6, 2.2, 0x1fff7a, 0.12);
+  const glowMid = ribbon(2.8, 2.5, 0x2bff8a, 0.4);
+  const core = ribbon(1.15, 2.9, 0xc8ffe2, 1);
   [glowWide, glowMid].forEach((m) => { m.material.blending = THREE.AdditiveBlending; });
   glowWide.renderOrder = 2; glowMid.renderOrder = 3; core.renderOrder = 4;
 
   // point lumineux du marcheur
-  const dot = new THREE.Mesh(new THREE.SphereGeometry(5, 20, 14), new THREE.MeshBasicMaterial({ color: 0xffe4e6 }));
+  const dot = new THREE.Mesh(new THREE.SphereGeometry(5, 20, 14), new THREE.MeshBasicMaterial({ color: 0xe8fff2 }));
   dot.material.fog = false;
   scene.add(dot);
-  const halo = new THREE.Mesh(new THREE.RingGeometry(9, 12, 40), new THREE.MeshBasicMaterial({ color: 0xff2b3d, transparent: true, opacity: 0.7, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false }));
+  const halo = new THREE.Mesh(new THREE.RingGeometry(9, 12, 40), new THREE.MeshBasicMaterial({ color: 0x2bff8a, transparent: true, opacity: 0.7, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false }));
   halo.rotation.x = -Math.PI / 2; halo.material.fog = false;
   scene.add(halo);
 
@@ -464,8 +480,8 @@ async function start() {
     pctx.fillStyle = "rgba(233,226,218,.12)"; pctx.fill();
     pctx.save(); pctx.beginPath(); pctx.rect(0, 0, X(km), h); pctx.clip();
     path(); pctx.lineTo(w, h - padB); pctx.lineTo(0, h - padB); pctx.closePath();
-    pctx.fillStyle = "rgba(255,43,61,.38)"; pctx.fill();
-    path(); pctx.strokeStyle = "#ff5a68"; pctx.lineWidth = 1.6; pctx.shadowColor = "#ff2b3d"; pctx.shadowBlur = 6; pctx.stroke(); pctx.shadowBlur = 0;
+    pctx.fillStyle = "rgba(43,255,138,.28)"; pctx.fill();
+    path(); pctx.strokeStyle = "#7dffbb"; pctx.lineWidth = 1.6; pctx.shadowColor = "#2bff8a"; pctx.shadowBlur = 6; pctx.stroke(); pctx.shadowBlur = 0;
     pctx.restore();
     // limites d'étapes
     pctx.fillStyle = "rgba(169,178,189,.9)"; pctx.textAlign = "center";

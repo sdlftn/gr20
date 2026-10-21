@@ -139,6 +139,7 @@ def main():
     km = cumulative_km(x, y)
     idx = snap_stops(stops, x, y)
 
+    texts = json.loads((ROOT / "data" / "stage_texts.json").read_text())
     stages = []
     for n in range(len(stops) - 1):
         a, c = idx[n], idx[n + 1]
@@ -157,9 +158,9 @@ def main():
             "end_km": round(km[c], 2),
         })
 
-    texts = json.loads((ROOT / "data" / "stage_texts.json").read_text())
     for st in stages:
         st["text"] = texts[str(st["n"])]
+        st["conseil"] = texts["conseils"].get(str(st["n"]))
 
     up_all, down_all = climb(ele)
     summary = {
@@ -182,6 +183,7 @@ def main():
             "from_name": ss[0]["from_name"],
             "to_name": ss[-1]["to_name"],
             "night": names[d["night"]] if d["night"] != "conca" else None,
+            "reseau": texts["reseau"].get(d["night"], "incertain"),
             "km": round(sum(s["km"] for s in ss), 1),
             "up": sum(s["up"] for s in ss),
             "down": sum(s["down"] for s in ss),
@@ -254,7 +256,8 @@ def main():
     }
 
     summary["depart"] = stops_doc["trek"].get("depart", {})
-    for name, obj in [("summary", summary), ("stages", stages), ("days", days),
+    photos = json.loads((ROOT / "data" / "photos.json").read_text())
+    for name, obj in [("photos", [{k: v for k, v in p.items() if k != "download"} for p in photos]), ("summary", summary), ("stages", stages), ("days", days),
                       ("track", track), ("stops", stop_out), ("terrain", terrain)]:
         (OUT / f"{name}.json").write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":")))
 

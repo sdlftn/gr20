@@ -4,12 +4,13 @@
     "https://www.horizonrando.fr/corse/gr20-etape-4/",
     "https://www.horizonrando.fr/corse/gr20-etape-6/",
     "https://gr20-infos.com/?p=54919",
-    "https://www.visorando.com/randonnee-gite-d-etape-i-croce.html"
+    "https://www.visorando.com/randonnee-gite-d-etape-i-croce.html",
+    "https://mongr20.com/gr20-en-12-jours"
   ],
   "1": "Le plus gros dénivelé du parcours dès le premier jour : on quitte le village de Calenzana, en Balagne, pour grimper jusqu'au refuge, au-dessus de la mer.",
   "2": "Des passages techniques où l'on s'aide des mains, des vues immenses, et l'arrivée sur la terrasse panoramique du refuge de Carrozzu.",
   "3": "Une étape courte qui descend vers Ascu Stagnu, une petite station de ski : l'un des rares endroits du GR20 où arrive une route.",
-  "4": "La plus redoutée. Depuis la fermeture du cirque de la Solitude en 2015, le chemin passe par la pointe des Éboulis, à 2 607 m, le point le plus haut du GR20, avec des passages équipés de chaînes.",
+  "4": "La plus technique. Depuis la fermeture du cirque de la Solitude en 2015, le chemin passe par la pointe des Éboulis, à 2 607 m, le point le plus haut du GR20, avec des passages équipés de chaînes.",
   "5": "Une journée courte, pour souffler après l'étape 4, jusqu'au refuge de Ciottulu di i Mori et sa vue réputée.",
   "6": "La plus longue : près de 25 km, par la forêt de pins de Valdu Niellu et le lac de Nino, entouré de prairies humides où vivent chevaux et vaches en liberté.",
   "7": "Une montée jusqu'à la brèche de Capitellu, qui domine deux lacs de haute montagne, avant de rejoindre le refuge de Petra Piana.",
@@ -21,5 +22,33 @@
   "13": "Les grandes prairies du plateau du Cuscionu, et le refuge de Matalza, ajouté au parcours en 2013.",
   "14": "La montée au Monte Incudine, à 2 134 m, le plus haut sommet du sud de la Corse, puis la descente vers le refuge d'Asinau.",
   "15": "Les aiguilles de Bavella et leur col. Une variante alpine permet de passer au plus près : pas très haute, mais vertigineuse.",
-  "16": "La dernière descente vers le village de Conca, avec encore quelques bosses avant l'arrivée."
+  "16": "La dernière descente vers le village de Conca, avec encore quelques bosses avant l'arrivée.",
+  "conseils": {
+    "1": "Partir calmement : avec la chaleur et un sac neuf, on a vite tendance à aller trop vite.",
+    "2": "Un terrain de rochers où l'on range les bâtons quand les mains deviennent utiles.",
+    "3": "On passe la passerelle de la Spasimata et de grandes dalles. Haut-Asco permet de souffler et de recharger.",
+    "4": "Partir tôt et garder de la marge, pour passer la partie haute le matin.",
+    "6": "Rivière, forêt et bassins d'eau claire. On peut se ravitailler à Castel di Vergio, à mi-étape.",
+    "7": "Une pause face aux lacs de Melo et de Capitello s'impose.",
+    "9": "La descente vers Vizzavona est longue : à ne pas sous-estimer.",
+    "10": "Le sud est moins technique, mais les étapes sont longues et le balisage est discret en forêt.",
+    "11": "À Prati, on aperçoit la mer pour la première fois.",
+    "15": "Bavella n'est pas encore la fin : il faut garder de l'énergie pour arriver au refuge.",
+    "16": "Une dernière étape plus physique qu'elle n'en a l'air, avec la baie de Porto-Vecchio au loin."
+  },
+  "reseau": {
+    "ortu": "aucun",
+    "ascu": "variable",
+    "tighjettu": "aucun",
+    "ciottulu": "aucun",
+    "manganu": "aucun",
+    "petrapiana": "incertain",
+    "vizzavona": "oui",
+    "capannelle": "incertain",
+    "prati": "incertain",
+    "matalza": "incertain",
+    "paliri": "aucun",
+    "conca": "oui",
+    "_source": "https://mongr20.com/gr20-reseau-recharge (indicatif)"
+  }
 }
