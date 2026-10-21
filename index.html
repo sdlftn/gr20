@@ -19,6 +19,7 @@
   --granit-2: #a9b2bd;    /* texte secondaire */
   --balise: #d8343c;      /* rouge du balisage GR */
   --balise-blanc: #f4f1ec;/* blanc du balisage GR */
+  --neon: #ff2b3d;        /* tracé néon */
   --voile: rgba(9, 15, 24, .72);
   --f-display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
   --f-texte: "Source Serif 4", Georgia, "Times New Roman", serif;
@@ -36,7 +37,7 @@ h1, h2, h3 { font-family: var(--f-display); font-weight: 600; text-wrap: balance
 /* ---------- scène 3D en fond ---------- */
 #scene {
   position: fixed; inset: 0; z-index: 0;
-  background: linear-gradient(180deg, #0b1320 0%, #1b2a40 46%, #3b3f4d 62%, var(--nuit-2) 100%);
+  background: linear-gradient(180deg, #05080d 0%, #0a1018 40%, #0f1722 62%, #0f1722 100%);
 }
 #scene canvas { display: block; width: 100%; height: 100%; }
 #scene-fallback { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px var(--pad-x-r) 24px var(--pad-x-l); text-align: center; color: var(--granit-2); }
@@ -47,7 +48,7 @@ h1, h2, h3 { font-family: var(--f-display); font-weight: 600; text-wrap: balance
 #labels { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
 .lbl { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; gap: 4px; opacity: 0; transition: opacity .35s; will-change: transform; }
 .lbl span { font-family: var(--f-display); font-weight: 600; font-size: .95rem; letter-spacing: .04em; text-transform: uppercase; color: var(--balise-blanc); text-shadow: 0 1px 6px rgba(0,0,0,.9); white-space: nowrap; }
-.lbl i { width: 2px; height: 22px; background: linear-gradient(var(--balise-blanc) 50%, var(--balise) 50%); }
+.lbl i { width: 2px; height: 22px; background: linear-gradient(var(--balise-blanc), var(--neon)); box-shadow: 0 0 8px var(--neon); }
 .lbl.village span { color: #ffd9a8; }
 
 /* ---------- récit ---------- */

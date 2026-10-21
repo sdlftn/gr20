@@ -86,8 +86,9 @@ async function start() {
   $("scene").prepend(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x2a3446, 0.000055);
-  const camera = new THREE.PerspectiveCamera(48, 1, 2, 60000);
+  const FOG = 0x0f1722;
+  scene.fog = new THREE.FogExp2(FOG, 0.00006);
+  const camera = new THREE.PerspectiveCamera(48, 1, 2, 90000);
 
   // relief
   const geo = new THREE.PlaneGeometry((cols - 1) * cell / S, (rows - 1) * cell / S, cols - 1, rows - 1);
@@ -103,18 +104,60 @@ async function start() {
   const u0 = 0.5 / cols, u1 = 1 - 0.5 / cols, v0 = 0.5 / rows, v1 = 1 - 0.5 / rows;
   const uv = geo.attributes.uv;
   for (let i = 0; i < uv.count; i++) uv.setXY(i, u0 + uv.getX(i) * (u1 - u0), v0 + uv.getY(i) * (v1 - v0));
-  // bords du relief fondus dans le ciel, pour ne jamais voir un « plateau » rectangulaire
+  // bord de la zone détaillée fondu sur ~1,5 km dans le relief de l'île posé dessous
   const am = document.createElement("canvas");
-  am.width = 64; am.height = 108;
+  am.width = 128; am.height = Math.round(128 * H / W);
   const actx = am.getContext("2d");
-  actx.fillStyle = "#000"; actx.fillRect(0, 0, 64, 108);
-  actx.filter = "blur(7px)";
-  actx.fillStyle = "#fff"; actx.fillRect(9, 9, 46, 90);
+  const fadePx = Math.max(2, Math.round(1500 / W * 128));
+  actx.fillStyle = "#000"; actx.fillRect(0, 0, am.width, am.height);
+  actx.filter = `blur(${Math.max(1, fadePx / 2)}px)`;
+  actx.fillStyle = "#fff"; actx.fillRect(fadePx, fadePx, am.width - 2 * fadePx, am.height - 2 * fadePx);
   const alphaTex = new THREE.CanvasTexture(am);
   const terrainMat = new THREE.MeshBasicMaterial({ map: tex, alphaMap: alphaTex, transparent: true });
   const terrainMesh = new THREE.Mesh(geo, terrainMat);
   terrainMesh.renderOrder = 0;
   scene.add(terrainMesh);
+
+  // ---------- l'île entière autour, puis la mer qui se perd dans la brume ----------
+  const isl = terrain.island;
+  const ihm = isl.heightmaps[IS_SMALL ? "400m" : "200m"];
+  const iheights = await loadHeights(ihm.file, ihm.cols, ihm.rows);
+  const icell = isl.width_m / ihm.cols;
+  const igeo = new THREE.PlaneGeometry((ihm.cols - 1) * icell / S, (ihm.rows - 1) * icell / S, ihm.cols - 1, ihm.rows - 1);
+  igeo.rotateX(-Math.PI / 2);
+  const ipos = igeo.attributes.position;
+  // centre de la grille de l'île dans le repère de la zone détaillée
+  const icx = toX(isl.x0 + isl.width_m / 2), icz = toZ(isl.y0 + isl.height_m / 2);
+  const inset = 2200; // m : sous la zone détaillée, l'île plonge sous la mer pour ne jamais la traverser
+  for (let i = 0; i < ipos.count; i++) {
+    const X = ipos.getX(i) + icx, Z = ipos.getZ(i) + icz;
+    const xm = X * S + W / 2, ym = H / 2 - Z * S;
+    const inside = xm > inset && xm < W - inset && ym > inset && ym < H - inset;
+    const z = iheights[i];
+    ipos.setXYZ(i, X, inside ? toY(-200) : z <= 0 ? toY(-30) : toY(z) - 0.8, Z);
+  }
+  ipos.needsUpdate = true;
+  igeo.computeBoundingSphere();
+  const itex = await new THREE.TextureLoader().loadAsync(DATA + isl.texture.file);
+  itex.colorSpace = THREE.SRGBColorSpace;
+  const islandMesh = new THREE.Mesh(igeo, new THREE.MeshBasicMaterial({ map: itex }));
+  islandMesh.renderOrder = -1;
+  scene.add(islandMesh);
+
+  // mer : grand disque sombre dont le bord s'efface dans le ciel
+  const sc = document.createElement("canvas");
+  sc.width = sc.height = 256;
+  const sctx = sc.getContext("2d");
+  const grad = sctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+  grad.addColorStop(0, "#fff"); grad.addColorStop(0.38, "#fff"); grad.addColorStop(1, "#000");
+  sctx.fillStyle = grad; sctx.fillRect(0, 0, 256, 256);
+  const seaR = 32000; // 320 km de rayon
+  const sea = new THREE.Mesh(new THREE.CircleGeometry(seaR, 96), new THREE.MeshBasicMaterial({
+    color: 0x121d2a, alphaMap: new THREE.CanvasTexture(sc), transparent: true, depthWrite: false }));
+  sea.rotation.x = -Math.PI / 2;
+  sea.position.set(icx, toY(-1), icz);
+  sea.renderOrder = -2;
+  scene.add(sea);
 
   // tracé : points en coordonnées 3D, posés sur le relief
   const n = track.x.length;
@@ -150,23 +193,26 @@ async function start() {
     scene.add(mesh);
     return mesh;
   }
-  const trailGhost = ribbon(2.2, 2.0, 0xf4f1ec, 0.28);
-  // fil d'un pixel, toujours visible même de très loin
+  // chemin à venir : fil rouge discret
   const lineGeo = new THREE.BufferGeometry().setFromPoints(P.map((v) => v.clone().setY(v.y + 3)));
-  const lineFull = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: 0xf4f1ec, transparent: true, opacity: 0.75, depthWrite: false, fog: false }));
+  const lineFull = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: 0xff2b3d, transparent: true, opacity: 0.32, depthWrite: false, fog: false }));
   lineFull.renderOrder = 1;
   scene.add(lineFull);
-  const trailWhite = ribbon(3.6, 2.4, 0xf4f1ec, 1);
-  const trailRed = ribbon(1.7, 2.8, 0xd8343c, 1);
-  trailGhost.renderOrder = 1;
-  trailWhite.renderOrder = 2;
-  trailRed.renderOrder = 3;
+  // chemin parcouru : néon rouge (cœur vif + deux halos additifs)
+  const lineDone = new THREE.Line(lineGeo.clone(), new THREE.LineBasicMaterial({ color: 0xff3347, depthWrite: false, fog: false }));
+  lineDone.renderOrder = 2;
+  scene.add(lineDone);
+  const glowWide = ribbon(6, 2.2, 0xff1f35, 0.12);
+  const glowMid = ribbon(2.8, 2.5, 0xff2b3d, 0.4);
+  const core = ribbon(1.15, 2.9, 0xffb3ba, 1);
+  [glowWide, glowMid].forEach((m) => { m.material.blending = THREE.AdditiveBlending; });
+  glowWide.renderOrder = 2; glowMid.renderOrder = 3; core.renderOrder = 4;
 
   // point lumineux du marcheur
-  const dot = new THREE.Mesh(new THREE.SphereGeometry(5, 20, 14), new THREE.MeshBasicMaterial({ color: 0xffe2b8 }));
+  const dot = new THREE.Mesh(new THREE.SphereGeometry(5, 20, 14), new THREE.MeshBasicMaterial({ color: 0xffe4e6 }));
   dot.material.fog = false;
   scene.add(dot);
-  const halo = new THREE.Mesh(new THREE.RingGeometry(9, 12, 40), new THREE.MeshBasicMaterial({ color: 0xffe2b8, transparent: true, opacity: 0.55, side: THREE.DoubleSide }));
+  const halo = new THREE.Mesh(new THREE.RingGeometry(9, 12, 40), new THREE.MeshBasicMaterial({ color: 0xff2b3d, transparent: true, opacity: 0.7, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false }));
   halo.rotation.x = -Math.PI / 2; halo.material.fog = false;
   scene.add(halo);
 
@@ -198,7 +244,7 @@ async function start() {
     const vf = THREE.MathUtils.degToRad(camera.fov) / 2;
     const hf = Math.atan(Math.tan(vf) * camera.aspect);
     const portrait = camera.aspect < 1;
-    const f = portrait ? 0.56 : 0.5;
+    const f = portrait ? 0.64 : 0.6;
     const d = Math.max(span.z * f / Math.tan(vf), span.x * f / Math.tan(hf)) * 1.04;
     const tilt = THREE.MathUtils.degToRad(portrait ? 70 : 52);
     out.set(centre.x - (portrait ? 0 : d * 0.18 * Math.cos(tilt)), centre.y + d * Math.sin(tilt), centre.z + d * Math.cos(tilt));
@@ -304,8 +350,8 @@ async function start() {
     pctx.fillStyle = "rgba(233,226,218,.12)"; pctx.fill();
     pctx.save(); pctx.beginPath(); pctx.rect(0, 0, X(km), h); pctx.clip();
     path(); pctx.lineTo(w, h - padB); pctx.lineTo(0, h - padB); pctx.closePath();
-    pctx.fillStyle = "rgba(216,52,60,.42)"; pctx.fill();
-    path(); pctx.strokeStyle = "#f4f1ec"; pctx.lineWidth = 1.5; pctx.stroke();
+    pctx.fillStyle = "rgba(255,43,61,.38)"; pctx.fill();
+    path(); pctx.strokeStyle = "#ff5a68"; pctx.lineWidth = 1.6; pctx.shadowColor = "#ff2b3d"; pctx.shadowBlur = 6; pctx.stroke(); pctx.shadowBlur = 0;
     pctx.restore();
     // limites d'étapes
     pctx.fillStyle = "rgba(169,178,189,.9)"; pctx.textAlign = "center";
@@ -390,10 +436,8 @@ async function start() {
     // tracé révélé jusqu'au point courant
     const shownKm = progress > OUTRO ? TOTAL : km;
     const seg = Math.floor(pointAt(shownKm).i);
-    lineFull.material.color.setHex(progress > OUTRO + 0.01 ? 0xff5a60 : 0xf4f1ec);
-    lineFull.material.opacity = progress > OUTRO + 0.01 ? 1 : 0.75;
-    trailWhite.geometry.setDrawRange(0, seg * 6);
-    trailRed.geometry.setDrawRange(0, seg * 6);
+    lineDone.geometry.setDrawRange(0, seg + 2);
+    for (const m of [glowWide, glowMid, core]) m.geometry.setDrawRange(0, seg * 6);
     const here = pointAt(shownKm).v;
     dot.position.copy(here).setY(here.y + 6);
     halo.position.copy(here).setY(here.y + 3);

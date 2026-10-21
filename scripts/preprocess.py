@@ -91,30 +91,22 @@ def export_heightmap(z, step_name):
 
 
 def baked_texture(z, cell, name, max_side):
-    """Texture du relief : teintes par altitude + ombrage en lumière rasante de fin de journée."""
+    """Texture du relief : graphite, ombrage rasant, crêtes légèrement éclairées."""
     gy, gx = np.gradient(z, cell)
-    slope = np.arctan(np.hypot(gx, gy) * 1.4)
+    slope = np.arctan(np.hypot(gx, gy) * 1.6)
     aspect = np.arctan2(-gx, gy)
-    az, alt = math.radians(290), math.radians(28)  # soleil couchant à l'ouest-nord-ouest
+    az, alt = math.radians(300), math.radians(30)
     shade = np.sin(alt) * np.cos(slope) + np.cos(alt) * np.sin(slope) * np.cos(az - aspect)
     shade = np.clip(shade, 0, 1)
 
-    stops = np.array([0, 1, 300, 800, 1300, 1800, 2300, 2710], dtype=float)
-    cols = np.array([
-        [22, 44, 66],     # mer
-        [74, 92, 58],     # littoral
-        [86, 104, 62],    # maquis bas
-        [104, 114, 70],   # maquis / forêt
-        [128, 122, 88],   # pinèdes, pelouses
-        [150, 134, 112],  # éboulis
-        [176, 160, 148],  # granit
-        [214, 204, 196],  # crêtes
-    ], dtype=float)
-    base = np.stack([np.interp(z, stops, cols[:, c]) for c in range(3)], axis=-1)
-    warm = np.array([1.08, 0.98, 0.86])  # lumière dorée
-    cool = np.array([0.55, 0.60, 0.78])  # ombres bleutées
-    light = shade[..., None]
-    img = base * (cool + (warm - cool) * light) * (0.66 + 0.8 * light)
+    # gris sombre légèrement bleuté, plus clair en altitude
+    t = np.clip(z / 2700.0, 0, 1)[..., None]
+    low = np.array([30, 33, 38], dtype=float)
+    high = np.array([74, 77, 83], dtype=float)
+    base = low + (high - low) * t
+    light = shade[..., None] ** 1.25
+    img = base * (0.34 + 1.05 * light) + np.array([3, 5, 9]) * (1 - light)
+    img[z <= 0] = (11, 16, 23)  # mer
     img = np.clip(img, 0, 255).astype(np.uint8)
     im = Image.fromarray(img, "RGB")
     scale = max_side / max(im.size)
@@ -223,6 +215,16 @@ def main():
     tex_hi = baked_texture(z25, 25.0, "texture_hi", 3072)
     tex_lo = baked_texture(z50, 50.0, "texture_lo", 1536)
 
+    # île entière autour de la zone détaillée (décor), mer à -30 m
+    with rasterio.open(RAW / "corse_ile_200m.tif") as isl:
+        zi = isl.read(1).astype(float)
+        ib = isl.bounds
+    zi_lo = block_mean(zi, 2)
+    export_heightmap(np.maximum(zi, 0) + 0, "ile_200m")
+    export_heightmap(np.maximum(zi_lo, 0), "ile_400m")
+    # le PNG ne code pas les altitudes négatives : la mer est repérée par la valeur 0
+    isl_tex = baked_texture(zi, 200.0, "texture_ile", 1125)
+
     terrain = {
         "width_m": round(b.right - b.left, 1),
         "height_m": round(b.top - b.bottom, 1),
@@ -232,6 +234,16 @@ def main():
             "100m": {"file": "terrain_100m.png", "cols": int(z100.shape[1]), "rows": int(z100.shape[0])},
         },
         "textures": {"hi": {"file": "texture_hi.jpg", "size": tex_hi}, "lo": {"file": "texture_lo.jpg", "size": tex_lo}},
+        "island": {
+            "x0": round(ib.left - b.left, 1), "y0": round(ib.bottom - b.bottom, 1),
+            "width_m": round(ib.right - ib.left, 1), "height_m": round(ib.top - ib.bottom, 1),
+            "heightmaps": {
+                "200m": {"file": "terrain_ile_200m.png", "cols": int(zi.shape[1]), "rows": int(zi.shape[0])},
+                "400m": {"file": "terrain_ile_400m.png", "cols": int(zi_lo.shape[1]), "rows": int(zi_lo.shape[0])},
+            },
+            "texture": {"file": "texture_ile.jpg", "size": isl_tex},
+            "note": "altitude 0 = mer",
+        },
         "encoding": "altitude_dm = R*256 + G (PNG RGB) ; ligne 0 = nord",
         "credits": ["Relief : BD ALTI® IGN (Licence Ouverte Etalab 2.0)",
                     "Tracé et refuges : © contributeurs OpenStreetMap (ODbL), via mongr20.com"],
